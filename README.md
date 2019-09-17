@@ -27,16 +27,16 @@
     kubectl config set-credentials docker-for-desktop --token="${TOKEN}"
     
 # addiotional commands:
-kubectl top node
-kubectl get pods
-kubectl get hpa
-kubectl delete all --all
-kubectl describe hpa nand-auto-scaler
-kubectl delete hpa nand-auto-scaler
-kubectl get deployments -o wide
-kubectl delete deployments selenium-node-chrome
-kubectl delete hpa NAME-OF-HPA
-kubectl get hpa -n testing-ns
+- kubectl top node
+- kubectl get pods
+- kubectl get hpa
+- kubectl delete all --all
+- kubectl describe hpa nand-auto-scaler
+- kubectl delete hpa nand-auto-scaler
+- kubectl get deployments -o wide
+- kubectl delete deployments selenium-node-chrome
+- kubectl delete hpa NAME-OF-HPA
+- kubectl get hpa -n testing-ns
 
 # how to install  Prometheus
 
