@@ -10,7 +10,7 @@
 - Command to check matrix server is installed successfully
 -- kubectl top node
 
-# Command to create selenium chrorme deployment
+# Command to create selenium chrome deployment
 - kubectl apply -f <path of the yml>\chrome-deployment.yml
 
 - command to scale deployment
