@@ -14,10 +14,10 @@
 - kubectl apply -f <path of the yml>\chrome-deployment.yml
 
 - command to scale deployment
--- kubectl apply -f <path of yml>\scale.yml
+-- kubectl apply -f <<path of yml>>\scale.yml
 
 - command to check deployment scale is working
--- kubectl describe hpa <auto scaler name>
+-- kubectl describe hpa <<auto scaler name>>
 
 # install kubernet dashoboard
 1. kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
