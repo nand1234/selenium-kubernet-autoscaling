@@ -1,5 +1,5 @@
 # prerequiste:
-- kubernetes is insallted
+- kubernetes is installed
 
 # how to install matrix server
 - clone the project on local driver
