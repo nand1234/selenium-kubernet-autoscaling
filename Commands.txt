@@ -1,0 +1,272 @@
+kubectl apply -f C:\Kubernet-Scaling\scale.yml
+
+kubectl apply -f C:\Kubernet-Scaling\chrome-deployment-withoutm.yml
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+kubectl apply -f C:\Kubernet-Scaling\selenium-hub-deployment.yml
+kubectl apply -f C:\Kubernet-Scaling\chrome-deployment.yml
+kubectl apply -f C:\Kubernet-Scaling\kubernet-matrix-server.yml
+Kubectl proxy
+
+http://127.0.0.1:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/
+kubectl apply -f deploy/1.8+/
+
+promotesis dashboard
+kubectl port-forward -n monitoring  prometheus-prom-operator-prometheus-o-prometheus-0 9090:9090
+
+kubectl delete -f ./deploy/1.8+/
+kubectl top node
+kubectl get pods
+
+kubectl get hpa
+
+kubectl delete all --all
+
+kubectl describe hpa nand-auto-scaler
+
+kubectl delete hpa nand-auto-scaler
+
+kubectl get deployments -o wide
+
+kubectl delete deployments selenium-node-chrome
+
+kubectl delete hpa NAME-OF-HPA
+
+kubectl get hpa -n testing-ns
+
+install helm
+choco install kubernetes-helm
+helm init --service-account tiller --history-max 200
+
+helm init
+Create a service account:
+
+kubectl create serviceaccount --namespace kube-system tiller
+Bind the new service account to the cluster-admin role. This will give tiller admin access to the entire cluster:
+
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+Deploy tiller and add the line serviceAccount: tiller to spec.template.spec:
+
+kubectl patch deploy --namespace kube-system tiller-deploy -p "{\"spec\":{\"template\":{\"spec\":{\"serviceAccount\":\"tiller\"}}}}"
+Now we are ready to install the Prometheus operator:
+
+helm install --name prom-operator stable/prometheus-operator --namespace monitoring
+This will create a separate namespace monitoring and will install the Prometheus operator in that namespace. It will also install Grafana, Kube-state-metrics and the Prometheus alert manager in the same namespace.
+
+Once the Prometheus operator is installed we can forward the Prometheus server pod to a port on our local machine
+
+kubectl port-forward -n monitoring  prometheus-prom-operator-prometheus-o-prometheus-0 9090:9090
+Access the Prometheus dashboard by navigating to http://localhost:9090
+
+helm del --purge prom-operator
+>helm ls --all prom-operator
+
+delete all promothe monitoring
+kubectl delete crd prometheuses.monitoring.coreos.com
+kubectl delete crd prometheusrules.monitoring.coreos.com
+kubectl delete crd servicemonitors.monitoring.coreos.com
+kubectl delete crd podmonitors.monitoring.coreos.com
+kubectl delete crd alertmanagers.monitoring.coreos.com
+
+So, you’ve launched your Kubernetes clusters in production. Everything is nominal, and you can sit back and relax, right? Wrong! To borrow from SpaceX, you never know when there might be a “rapid unscheduled disassembly”, or as regular people say; things might blow up.
+
+While you can definitely relax it is a great idea to monitor your clusters and avoid any unpleasant unscheduled disassemblies.
+
+Why Monitor Kubernetes Resource Metrics in Production?
+Every Kubernetes administrator has stumbled across the “Failed Scheduling No nodes are available that match all of the following predicates:: Insufficient memory” or  “Failed Scheduling No nodes are available that match all of the following predicates:: Insufficient CPU” error message.
+
+It is obvious that these errors are caused by insufficient CPU or memory resources. Such issues can be avoided by having a real-time view of resource usage and availability for individual nodes or pods.
+
+Monitoring Kubernetes is also important in the context of resource usage, utilization and cost control. Kubernetes clusters have to be actively managed to ensure pods utilize underlying node resources efficiently. The same is true of resources allocated to individual containers or namespaces.
+
+Below we will review some best practices for monitoring Kubernetes resource metrics in production. We will go through the entire process of setting up the tools required, choosing which metrics to monitor as well as deploying dashboards.
+
+Monitoring Kubernetes metrics is just the start though. Ensuring that Kubernetes clusters utilize underlying resources efficiently also requires active management and continuous optimization based on historical data. Replex’s Kubernetes solution does this by collecting and analyzing Kubernetes resource metrics to flag idle resources, dynamically optimize infrastructure footprint and cut costs.
+
+Which Resource Metrics Should I be Monitoring?
+The Utilization Saturation and Errors (USE) Method gives us an idea of the performance metrics we should be tracking for Kubernetes in production. The USE method was developed by Brendann Egg to analyze the performance of any system in production. It recommends tracking utilization, saturation and errors for all resources.
+
+We can start with OS and hardware metrics exposed by the underlying Linux kernels of the containers running inside Kubernetes clusters. However, tracking resource metrics for OS and hardware is not enough in the Kubernetes context. For these metrics to be meaningful we need to co-relate them to Kubernetes primitives.
+
+Kubernetes introduces a number of abstractions that we need to consider when choosing which metrics to track in production. These are abstractions on both the hardware as well as software layer including nodes, pods, containers, namespaces and clusters.
+
+The resource management model of Kubernetes also has to be considered. Kubernetes has two types of resources that can be consumed by containers: CPU and memory. Container resource consumption can be managed using resource requests and resource limits. Resource requests are the minimum amount of resources requested for containers, limits, on the other hand, are the maximum amount that can be consumed by containers.
+
+Bringing all of these concepts together results in the following exhaustive list of resource metrics that we can monitor in production. The list takes into consideration both OS and hardware metrics as well as the specific hardware and software abstractions introduced by Kubernetes and the resource management model.
+
+Ready for Production? Download the Complete Production Readiness Checklist with Checks, Recipes and Best Practices for Availability, Resource Management, Security, Scalability and Monitoring 
+
+Below is the list with brief descriptions of each resource metric:
+
+Kubernetes Container CPU and Memory Usage
+Containers are the building blocks of containerized applications. Container CPU usage refers to the amount of CPU resources consumed by containers in production. Memory usage is the measure of memory resources consumed. CPU resources are measured in CPU cores while memory is measured in bytes
+
+Kubernetes Pod CPU and Memory Usage
+Pods are collections of containers and as such pod CPU usage is the sum of the CPU usage of all containers that belong to a pod. Similarly, pod memory usage is the total memory usage of all containers belonging to the pod
+
+Kubernetes Node CPU and Memory Usage
+Node CPU usage is the number of CPU cores being used on the node by all pods running on that node. Similarly node memory usage is the total memory usage of all pods
+
+Kubernetes Namespace CPU and Memory Usage
+You can think of Kubernetes namespaces as boxes. DevOps can create separate boxes to isolate the resources belonging to individual applications or teams. Namespace resource usage is the sum of CPU or memory usage of all pods that belong to that namespace
+
+Kubernetes Cluster CPU and Memory Usage
+The sum of CPU or memory usage of all pods running on nodes belonging to the cluster gives us the CPU or memory usage for the entire cluster 
+
+Kubernetes Container CPU and Memory Requests
+You can think of container resource requests as a soft limit on the amount of CPU or memory resources a container can consume in production
+
+Kubernetes Pod CPU and Memory Requests
+The sum of CPU or memory requests of all containers belonging to a pod
+
+Kubernetes Node CPU and Memory Requests
+Node CPU requests are a sum of the CPU requests for all pods running on that node. Similarly, node memory requests are a sum of memory requests of all pods
+
+Kubernetes Namespace CPU and Memory Requests
+The sum of CPU or memory requests of all pods belonging to a namespace
+
+Kubernetes Cluster CPU and Memory Requests
+Sum of CPU requests or memory requests for all pods running on nodes belonging to a cluster
+
+Kubernetes Container CPU and Memory Limits
+Container CPU limits are a hard limit on the amount of CPU a container can consume in production. Memory limits are the maximum amount of bytes that a container can consume in production
+
+Kubernetes Pod CPU and Memory Limits
+The sum of CPU or memory limits for all containers belonging to a pod
+
+Kubernetes Node CPU and Memory Limits
+Node CPU limits are the sum of CPU limits for all pods running on that specific node. Node memory limits on the other hand, are a sum of the memory limits of all pods
+
+Kubernetes Namespace CPU and Memory Limits
+Sum of CPU or memory limits of all pods belonging to a namespace
+
+Kubernetes Cluster CPU and Memory Limits
+Sum of CPU or memory limits for all pods running on nodes belonging to a cluster
+
+Kubernetes Resource Capacity
+In cloud environments, Kubernetes nodes usually refer to cloud provider instances. Node CPU capacity is the total number of CPU cores on the node. Node memory capacity is the total number of bytes available on the node. For example, an N1-standard-1 instance has 2 vCPUs and 3.75 GB of memory
+
+Cluster CPU capacity is the sum of CPU capacities of all Kubernetes nodes that are part of the cluster. Cluster memory capacity is the sum of memory capacities of all nodes belonging to the cluster. For example a cluster with 4 N1-standard-1 instances has 8vCPUs and 15 GB of memory
+
+Kubernetes CPU and Memory Request Commitment (Resource Requests vs Capacity)
+CPU request commitment is the ratio of CPU requests for all pods running on a node to the total CPU available on that node. In the same way, memory commitment is the ratio of pod memory requests to the total memory capacity of that node. We can also calculate cluster level request commitment by comparing CPU/memory requests on a cluster level to total cluster capacity
+
+Request commitments give us an idea of how much of the node or cluster is committed in terms of soft resource usage limits
+
+Kubernetes CPU and Memory Limit Commitment (Resource Limits vs Capacity)
+CPU limit commitment is the ratio of CPU limits for all pods running on a node to the total CPU available on that node. Similarly, memory commitment is the ratio of pod memory limits to the total memory capacity of that node. Cluster level limit commitments can be calculated by comparing total CPU/memory limits to cluster capacity
+
+Limit commitments give us an idea of how much of the node or cluster is committed in terms of hard CPU and memory limits
+
+Kubernetes Resource Utilization (Resource Usage vs Capacity)
+With the emphasis on pay as you go billing models for cloud deployments, resource utilization is an important metric to monitor and has major implications for cost control
+
+CPU utilization is the ratio of CPU resources being currently consumed by all pods running on a node to the total CPU available on that node. Memory utilization is the ratio of memory usage by all pods to the total memory capacity of that node
+
+Cluster resource utilization will compare resource usage (both CPU and memory) for all pods with the total resource capacity of all nodes
+
+Kubernetes Resource Saturation
+Node CPU saturation is the measure of requests for CPU which cannot be fulfilled because of unavailability. Similarly, memory saturation on the node is a measure of the memory requests which cannot be met due to unavailability
+
+Saturation on the cluster level can be calculated based on saturation numbers across all nodes.
+
+Now that we have identified Kubernetes specific resource metrics we can take a look at some of the tools that will help us monitor these resources in production.
+
+Which Tools Can I Use to Monitor Kubernetes Metrics?
+There are a number of tools that can be used to monitor Kubernetes in production. These include cAdvisor, Heapster, Prometheus, metrics-server and kube-state-metrics.
+
+Let’s start by taking a look at metrics-server.
+
+Monitoring Resource Metrics with Metrics-Server
+Metrics-server allows us to query resource metrics using kubectl right from the command line. However, It gives us access to only some of the metrics outlined above.
+
+Follow the steps below to install metrics-server in your kubernetes cluster. We assume that you already have a Kubernetes cluster up and running and have kubectl installed.
+
+git clone https://github.com/kubernetes-incubator/metrics-server
+cd metrics-server/deploy
+kubectl create -f 1.8+/
+Once you do this, you will see an instance of the metrics-server running in the kube-system namespace 
+
+kubectl get pods -n kube-system
+kubernetes-metrics-server-28
+
+However, If you try to access the logs for the metrics-server using kubectl logs -n kube-system metrics-server-749b7b675d-xpkcj you might see the unable to fetch pod metrics for pod <namespace_name>/<pod_name> message.
+
+You will also get the error message error: Metrics not available for pod <namespace_name>/<pod_name> if you query kubectl top pod from the command line.
+
+To get around this edit the metrics-server deployment config
+
+kubectl edit deploy -n kube-system metrics-server
+and add the following under .spec.template.spec.containers
+
+command:
+- /metrics-server
+- --kubelet-insecure-tls
+Passing these flags should only be considered as a work-around for test clusters. In production Kubernetes environments you should consider setting up the node's serving certificates to list the internal IP as an alternate name. 
+
+Now we are ready to query resource metrics using kubectl from the command line. Let’s start with resource usage per pod.
+
+Resource Metric: Kubernetes Pod Resource Usage
+The following command will give us both the CPU usage as well as the memory usage for all pods in the default namespace.
+
+kubectl top pod
+kubectl-CPU-memory-usage-pods-default-namespace-20
+
+To get the resource usage for pods in another namespace use
+
+kubectl top pod --namespace=<namespace_name>
+For example we can see the resource usage for all pods in kube-system namespace using:
+
+kubectl top pod --namespace=kube-system
+kubectl-CPU-memory-usage-pods-kube-system-namespace-21
+
+To see the CPU and memory usage for the individual containers of a pod use:
+
+kubectl top pod <pod_name> --containers
+kubectl top pod my-pod --containers
+kubectl-CPU-memory-usage-containers-22
+
+Resource Metric: Kubernetes Node Resource Usage
+To get the CPU and memory usage for individual nodes use the following command
+
+kubectl top node
+kubectl-node-CPU-memory-usage-23
+
+We can also see the CPU and memory usage for individual nodes by specifying a node name:
+
+kubectl top node <node_name></code>
+kubectl top node nodes-c472
+kubectl-node-CPU-memory-usage-24
+
+Monitoring Resource Metrics with Prometheus
+Next we will look at Prometheus which has become something of a favourite among DevOps. We will install Prometheus using Helm and the Prometheus operator. The Prometheus operator is a Kubernetes specific project that makes it easy to set up and configure Prometheus for Kubernetes clusters. 
+
+Let’s first install Helm. To do that, head over here and download the latest version. I downloaded the helm-v2.11.0-linux-amd64.tar.gz version.
+
+Next, unpack it:
+
+tar -zxvf helm-v2.11.0-linux-amd64.tar.gz
+Move it to your bin directory:
+
+mv linux-amd64/helm /usr/local/bin/helm
+Initialize helm and install tiller:
+
+helm init
+Create a service account:
+
+kubectl create serviceaccount --namespace kube-system tiller
+Bind the new service account to the cluster-admin role. This will give tiller admin access to the entire cluster:
+
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+Deploy tiller and add the line serviceAccount: tiller to spec.template.spec:
+
+kubectl patch deploy --namespace kube-system tiller-deploy -p "{\"spec\":{\"template\":{\"spec\":{\"serviceAccount\":\"tiller\"}}}}"
+Now we are ready to install the Prometheus operator:
+
+helm install --name prom-operator stable/prometheus-operator --namespace monitoring
+This will create a separate namespace monitoring and will install the Prometheus operator in that namespace. It will also install Grafana, Kube-state-metrics and the Prometheus alert manager in the same namespace.
+
+Once the Prometheus operator is installed we can forward the Prometheus server pod to a port on our local machine
+
+kubectl port-forward -n monitoring  prometheus-prom-operator-prometheus-o-prometheus-0 9090:9090
+Access the Prometheus dashboard by navigating to http://localhost:9090
