@@ -19,7 +19,7 @@
 - command to check deployment scale is working
 -- kubectl describe hpa <<auto scaler name>>
 
-# install kubernet dashoboard
+# install kubernet dashboard
 1. kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
 2. enbale the port : Kubectl proxy
 3. generate secrate key. run below code in powershell
